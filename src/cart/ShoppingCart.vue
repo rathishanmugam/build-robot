@@ -18,7 +18,7 @@
                     {{robot.head.title}}
                 </td>
                 <td class="cost">
-                    {{robot.cost}}
+                    {{robot.cost | currency('£')}}
                 </td>
             </tr>
             </tbody>
@@ -41,7 +41,7 @@
                     {{robot.head.title}}
                 </td>
                 <td class="cost">
-                    {{robot.cost}}
+                    {{robot.cost | currency('£')}}
                 </td>
             </tr>
             </tbody>
@@ -54,10 +54,10 @@
         name: 'Cart',
         computed: {
             cart() {
-                return this.$store.state.cart;
+                return this.$store.state.robots.cart;
             },
             cartSaleItems() {
-                return this.$store.getters.cartSaleItems;
+                return this.$store.getters['robots/cartSaleItems'];
             },
         },
     };
@@ -67,16 +67,13 @@
     td, th {
         padding: 5px;
     }
-
     .robot-title {
         text-align: left;
         padding-right: 200px;
     }
-
     .cost {
         text-align: right;
     }
-
     .saleItems {
         margin-top: 50px;
         font-size: 18px;

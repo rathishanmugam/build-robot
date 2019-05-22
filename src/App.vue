@@ -1,5 +1,12 @@
 <template>
   <div id="app">
+    <!-- Root Foo: {{rootFoo}} <br/>
+    Robots Foo: {{robotsFoo}} <br/>
+    Users Foo: {{usersFoo}} <br/>
+    <br/>
+    Root Getter Foo: {{rootGetterFoo}} <br/>
+    Robots Getter Foo: {{robotsGetterFoo}} <br/> -->
+
     <header>
       <nav>
         <ul>
@@ -14,14 +21,21 @@
               Build
             </router-link>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" :to="{name: 'BrowseParts'}" exact>
+              Browse Parts
+            </router-link>
+          </li>
           <li class="nav-item cart">
             <router-link class="nav-link" to="/cart" exact>
               Cart
             </router-link>
             <div class="cart-items">
-              {{ cart.length}}
+              {{cart.length}}
             </div>
           </li>
+
+
         </ul>
       </nav>
     </header>
@@ -37,14 +51,22 @@
 </template>
 
 <script>
+  import { mapState, mapGetters } from 'vuex';
 
   export default {
     name: 'app',
     computed: {
-      cart(){
-        return this.$store.state.cart;
-      }
-    }
+      ...mapState({
+        rootFoo: 'foo',
+        usersFoo: state => state.users.foo,
+      }),
+      ...mapState('robots', { robotsFoo: 'foo' }),
+      ...mapGetters({ rootGetterFoo: 'foo' }),
+      ...mapGetters('robots', { robotsGetterFoo: 'foo' }),
+      cart() {
+        return this.$store.state.robots.cart;
+      },
+    },
   };
 </script>
 
@@ -80,6 +102,11 @@
     font-size: 22px;
     border-right: 1px solid #bbb;
   }
+  .nav-item.cart {
+    position: relative;
+    margin-left: auto;
+    border-right: none;
+  }
   .logo {
     vertical-align: middle;
     height: 30px;
@@ -95,11 +122,6 @@
     display: flex;
     margin: 10px auto 0 auto;
     justify-content: center;
-  }
-  .nav-item.cart {
-    position: relative;
-    margin-left: auto;
-    border-right: none;
   }
   .aside {
     padding: 30px;

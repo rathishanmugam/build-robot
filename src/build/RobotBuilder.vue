@@ -48,28 +48,12 @@
                     position="bottom"
                     @partSelected="part => selectedRobot.base=part"/>
         </div>
-        <div>
-            <h1>Cart</h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>Robot</th>
-                    <th class="cost">Cost</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(robot, index) in cart" :key="index">
-                    <td>{{robot.head.title}}</td>
-                    <td class="cost">{{robot.cost}}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 </template>
 
 <script>
-    // import availableParts from '../data/parts';
+    import { mapActions } from 'vuex';
+
     import createdHookMixin from './created-hook-mixin';
     import PartSelector from './PartSelector.vue';
     import CollapsibleSection from '../shared/CollapsibleSection.vue';
@@ -77,22 +61,21 @@
     export default {
         name: 'RobotBuilder',
         created() {
-            this.$store.dispatch('getParts');
+            this.getParts();
         },
-        // beforeRouteLeave(to, from, next) {
-        //     if (this.addedToCart) {
-        //         next(true);
-        //     } else {
-        //         /* eslint no-alert: 0 */
-        //         /* eslint no-restricted-globals: 0 */
-        //         const response = confirm('You have not added your robot to your cart, are you sure you want to leave?');
-        //         next(response);
-        //     }
-        // },
-        components: {PartSelector, CollapsibleSection},
+        beforeRouteLeave(to, from, next) {
+            if (this.addedToCart) {
+                next(true);
+            } else {
+                /* eslint no-alert: 0 */
+                /* eslint no-restricted-globals: 0 */
+                const response = confirm('You have not added your robot to your cart, are you sure you want to leave?');
+                next(response);
+            }
+        },
+        components: { PartSelector, CollapsibleSection },
         data() {
             return {
-                // availableParts,
                 addedToCart: false,
                 cart: [],
                 selectedRobot: {
@@ -107,7 +90,7 @@
         mixins: [createdHookMixin],
         computed: {
             availableParts() {
-                return this.$store.state.parts;
+                return this.$store.state.robots.parts;
             },
             saleBorderClass() {
                 return this.selectedRobot.head.onSale ? 'sale-border' : '';
@@ -121,6 +104,7 @@
             },
         },
         methods: {
+            ...mapActions('robots', ['getParts', 'addRobotToCart']),
             addToCart() {
                 const robot = this.selectedRobot;
                 const cost = robot.head.cost +
@@ -128,9 +112,8 @@
                     robot.torso.cost +
                     robot.rightArm.cost +
                     robot.base.cost;
-                this.$store.dispatch('addRobotToCart',
-                    Object.assign({}, robot, {cost}))
-                .then ( () => this.$router.push('/cart'));
+                this.addRobotToCart(Object.assign({}, robot, { cost }))
+                    .then(() => this.$router.push('/cart'));
                 this.addedToCart = true;
             },
         },
@@ -140,86 +123,71 @@
 <style lang="scss" scoped>
     .part {
         position: relative;
-        width: 165px;
-        height: 165px;
+        width:165px;
+        height:165px;
         border: 3px solid #aaa;
     }
-
     .part {
         img {
-            width: 165px;
+            width:165px;
         }
     }
-
     .top-row {
-        display: flex;
+        display:flex;
         justify-content: space-around;
     }
-
     .middle-row {
-        display: flex;
+        display:flex;
         justify-content: center;
     }
-
     .bottom-row {
-        display: flex;
+        display:flex;
         justify-content: space-around;
         border-top: none;
     }
-
     .head {
         border-bottom: none;
     }
-
     .left {
         border-right: none;
     }
-
     .right {
         border-left: none;
     }
-
     .left img {
         transform: rotate(-90deg);
     }
-
     .right img {
         transform: rotate(90deg);
     }
-
     .bottom {
         border-top: none;
     }
-
     .prev-selector {
         position: absolute;
-        z-index: 1;
+        z-index:1;
         top: -3px;
         left: -28px;
         width: 25px;
         height: 171px;
     }
-
     .next-selector {
         position: absolute;
-        z-index: 1;
+        z-index:1;
         top: -3px;
         right: -28px;
         width: 25px;
         height: 171px;
     }
-
     .center .prev-selector, .center .next-selector {
-        opacity: 0.8;
+        opacity:0.8;
     }
-
     .left .prev-selector {
         top: -28px;
         left: -3px;
         width: 144px;
         height: 25px;
     }
-
     .left .next-selector {
         top: auto;
         bottom: -28px;
@@ -227,14 +195,12 @@
         width: 144px;
         height: 25px;
     }
-
     .right .prev-selector {
         top: -28px;
         left: 24px;
         width: 144px;
         height: 25px;
     }
-
     .right .next-selector {
         top: auto;
         bottom: -28px;
@@ -242,47 +208,30 @@
         width: 144px;
         height: 25px;
     }
-
     .right .next-selector {
         right: -3px;
     }
-
     .robot-name {
         position: absolute;
         top: -25px;
         text-align: center;
         width: 100%;
     }
-
     .sale {
         color: red;
     }
-
     .content {
         position: relative;
     }
-
     .add-to-cart {
         position: absolute;
         width: 210px;
         padding: 3px;
         font-size: 16px;
     }
-
-    td, th {
-        text-align: left;
-        padding: 5px;
-        padding-right: 20px;
-    }
-
-    .cost {
-        text-align: right;
-    }
-
     .sale-border {
         border: 3px solid red;
     }
-
     .preview {
         position: absolute;
         top: -20px;
@@ -291,20 +240,16 @@
         height: 210px;
         padding: 5px;
     }
-
     .preview-content {
         border: 1px solid #999;
     }
-
     .preview img {
         width: 50px;
         height: 50px;
     }
-
     .rotate-right {
         transform: rotate(90deg);
     }
-
     .rotate-left {
         transform: rotate(-90deg);
     }
